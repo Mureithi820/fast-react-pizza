@@ -102,8 +102,9 @@ function Order() {
 // }
 export async function loader({ params }) {
   try {
-    const orderId = params?.orderID || params?.id; // Use params?.id to get the order ID
-    console.log("Order ID:", orderId);
+    console.log("Loader Params:", params);
+    const orderId = params?.orderId;
+    console.log("Order ID from Loader:", orderId);
 
     if (!orderId) {
       throw new Error("Order ID is missing");
@@ -119,9 +120,7 @@ export async function loader({ params }) {
   } catch (error) {
     console.error(error);
     throw new Error(
-      `Failed to fetch order #${
-        params ? params.orderID || params.id : "undefined"
-      }`
+      `Failed to fetch order #${params ? params.orderID : "undefined"}`
     );
   }
 }
