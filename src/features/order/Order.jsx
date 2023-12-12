@@ -1,15 +1,27 @@
 // Test ID: IIDSAT
 import OrderItem from './OrderItem';
-import { useLoaderData } from 'react-router-dom';
+import { useFetcher, useLoaderData } from 'react-router-dom';
 import { getOrder } from '../../services/apiRestaurant';
 import {
   calcMinutesLeft,
   formatCurrency,
   formatDate,
 } from '../../utilities/helpers';
+import { useEffect } from 'react';
+import UpdateOrder from './UpdateOrder';
 
 function Order() {
   const order = useLoaderData();
+
+  const fetcher = useFetcher();
+
+  useEffect(
+    function () {
+      if (!fetcher.data && fetcher.state === 'idle') fetcher.load('/menu');
+    },
+    [fetcher],
+  );
+
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
   const {
     id,
@@ -52,9 +64,20 @@ function Order() {
       </div>
 
       <ul className="divide-y divide-stone-200 border-b border-t">
-        {cart.map((item) => (
-          <OrderItem item={item} key={item.pizzaId} />
-        ))}
+        {cart.map((item) => {
+          const ingredients =
+            fetcher.data?.find((el) => el.id === item.pizzaId)?.ingredients ??
+            [];
+
+          return (
+            <OrderItem
+              item={item}
+              key={item.pizzaId}
+              isLoadingIngredients={fetcher && fetcher.state === 'loading'}
+              ingredients={ingredients}
+            />
+          );
+        })}
       </ul>
 
       <div className="space-y-2 bg-stone-200 px-6 py-5">
@@ -70,24 +93,12 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
-// export async function loader({ params }) {
-//   try {
-//     const order = await getOrder(params.orderID);
 
-//     if (!order) {
-//       // Handle the case where order is not found
-//       throw new Error(`Couldn't find order #${params.orderID}`);
-//     }
-
-//     return order;
-//   } catch (error) {
-//     console.error(error);
-//     throw new Error(`Failed to fetch order #${params.orderID}`);
-//   }
-// }
 export async function loader({ params }) {
   try {
     console.log('Loader Params:', params);
