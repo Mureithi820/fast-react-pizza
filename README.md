@@ -1,4 +1,4 @@
 Fast React Pizza
 
-Deployed on netlify.com
-Access the finished website at: https://classy-naiad-4fd59a.netlify.app/
+-Deployed on netlify.com
+-Access the finished website at: https://classy-naiad-4fd59a.netlify.app/
